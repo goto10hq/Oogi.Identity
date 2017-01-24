@@ -8,3 +8,7 @@
 /Oogi.Identity/packages
 /Oogi.Identity/Tests/bin/Debug
 /Oogi.Identity/Tests/obj/Debug
+/Oogi.Identity/.vs/config
+/Oogi.Identity/Web/bin
+/Oogi.Identity/Web/obj/Debug
+/Oogi.Identity/Web/.oogi.xml

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oogi.Identity", "Oogi.Ident
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{28C65728-52B3-4E6E-AD83-863969C00145}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{FB5DA508-DE4B-467A-9DDB-830E902BA83F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{28C65728-52B3-4E6E-AD83-863969C00145}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28C65728-52B3-4E6E-AD83-863969C00145}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28C65728-52B3-4E6E-AD83-863969C00145}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB5DA508-DE4B-467A-9DDB-830E902BA83F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB5DA508-DE4B-467A-9DDB-830E902BA83F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB5DA508-DE4B-467A-9DDB-830E902BA83F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB5DA508-DE4B-467A-9DDB-830E902BA83F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
