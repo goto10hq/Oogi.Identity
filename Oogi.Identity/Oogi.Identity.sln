@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26020.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oogi.Identity", "Oogi.Identity\Oogi.Identity.csproj", "{D0F5A718-6AF7-4550-9E49-DC00C818EBFE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{28C65728-52B3-4E6E-AD83-863969C00145}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D0F5A718-6AF7-4550-9E49-DC00C818EBFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0F5A718-6AF7-4550-9E49-DC00C818EBFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0F5A718-6AF7-4550-9E49-DC00C818EBFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28C65728-52B3-4E6E-AD83-863969C00145}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28C65728-52B3-4E6E-AD83-863969C00145}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28C65728-52B3-4E6E-AD83-863969C00145}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28C65728-52B3-4E6E-AD83-863969C00145}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

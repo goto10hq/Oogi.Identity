@@ -132,7 +132,7 @@ namespace Oogi.Identity
             
             var q = new DynamicQuery<T>
                 (
-                "select top 1 from c where c.entity = @entity and c.userName = @userName",
+                "select top 1 * from c where c.entity = @entity and c.userName = @userName",
                 new
                 {
                     entity = Entity,
@@ -302,14 +302,12 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (email == null)
-            {
-                throw new ArgumentNullException(nameof(email));
-            }
+            if (email == null)            
+                throw new ArgumentNullException(nameof(email));            
 
             var q = new DynamicQuery<T>
                 (
-                "select top 1 from c where c.entity = @entity and c.email = @email",
+                "select top 1 * from c where c.entity = @entity and c.email = @email",
                 new
                 {
                     entity = Entity,
