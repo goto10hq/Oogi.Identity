@@ -18,7 +18,7 @@ namespace Tests
         private readonly UserStore<SuperIdentityUser> _userStore = new UserStore<SuperIdentityUser>();
         
         [TestMethod]
-        public async Task CreateUser()
+        public async Task CreateUserAsync()
         {
             var testUser = new SuperIdentityUser
             {
@@ -61,7 +61,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public async Task UsersWithCustomIdsPersistThroughStorage()
+        public async Task UsersWithCustomIdsPersistThroughStorageAsync()
         {
             var testUser = new SuperIdentityUser
             {
@@ -79,7 +79,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public async Task UsersWithNoSetIdDefaultToNewGuid()
+        public async Task UsersWithNoSetIdDefaultToNewGuidAsync()
         {
             var testUser = new SuperIdentityUser
             {
@@ -90,12 +90,14 @@ namespace Tests
             await _userStore.CreateAsync(testUser);
 
             var savedUser = await _userStore.FindByEmailAsync(testUser.Email);
-            Assert.IsTrue(!string.IsNullOrEmpty(savedUser.Id));            
-            Assert.IsTrue(Guid.TryParse(savedUser.Id, out var guidId));            
+            Assert.IsTrue(!string.IsNullOrEmpty(savedUser.Id));
+
+            Guid guidId;
+            Assert.IsTrue(Guid.TryParse(savedUser.Id, out guidId));
         }
 
         [TestMethod]
-        public async Task CanFindUserByLoginInfo()
+        public async Task CanFindUserByLoginInfoAsync()
         {
             var testUser = new SuperIdentityUser
             {
@@ -117,7 +119,7 @@ namespace Tests
         }
 
         [TestCleanup]
-        public void DeleteRobots()
+        public async Task DeleteRobotsAsync()
         {
             var repo = new Repository<SuperIdentityUser>();
 
@@ -125,7 +127,7 @@ namespace Tests
 
             foreach (var user in users)
             {
-                repo.Delete(user);
+                await repo.DeleteAsync(user);
             }
         }
     }
