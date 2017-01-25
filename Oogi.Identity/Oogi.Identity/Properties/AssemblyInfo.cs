@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Oogi.Identity")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("ASP.NET Identity for DocumentDB using Oogi.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Oogi.Identity")]
