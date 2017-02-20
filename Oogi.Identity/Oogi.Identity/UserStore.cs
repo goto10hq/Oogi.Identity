@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DocumentDB.AspNet.Identity;
 using Microsoft.AspNet.Identity;
 using Microsoft.Azure.Documents.Client;
-using Oogi.Query;
+using Oogi.Queries;
 
 namespace Oogi.Identity
 {
