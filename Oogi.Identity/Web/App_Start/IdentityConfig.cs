@@ -38,17 +38,17 @@ namespace Web
 
         public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context)
         {
-            var manager = new ApplicationUserManager(new UserStore<ApplicationUser>());
+            var manager = new ApplicationUserManager(new UserStore<ApplicationUser>());            
 
             // Configure validation logic for usernames
-            manager.UserValidator = new UserValidator<ApplicationUser>(manager)
+            manager.UserValidator = new SmartUserValidator<ApplicationUser>(manager)
             {
                 AllowOnlyAlphanumericUserNames = true,
                 RequireUniqueEmail = true
             };
 
             // Configure validation logic for passwords
-            manager.PasswordValidator = new PasswordValidator
+            manager.PasswordValidator = new SmartPasswordValidator
             {
                 RequiredLength = 6,
                 RequireNonLetterOrDigit = false,

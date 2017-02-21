@@ -7,6 +7,7 @@ using Microsoft.AspNet.Identity;
 
 namespace Oogi.Identity
 {
+    // TODO: handle if messages is null
     public class SmartPasswordValidator : IIdentityValidator<string>
     {
         /// <summary>
@@ -40,9 +41,9 @@ namespace Oogi.Identity
         public bool RequireDigit { get; set; }
 
 
-        public PasswordValidator(Messages messages = null)
+        public SmartPasswordValidator(Messages messages = null)
         {
-            Messages = messages;
+            Messages = messages ?? new Messages();
         }
 
         /// <summary>
