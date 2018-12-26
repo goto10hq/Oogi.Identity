@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using Microsoft.AspNet.Identity;
 
 namespace Oogi.Identity
-{
-    public class IdentityUser : BaseEntity, IUser
+{    
+    public class IdentityUser : IUser
     {       
         /// <summary>
         /// Id.
         /// </summary>
-        public override string Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Entity identification.
         /// </summary>
-        public override string Entity { get; set; } 
+        public string Entity { get; set; } 
 
         /// <summary>
         /// User name.

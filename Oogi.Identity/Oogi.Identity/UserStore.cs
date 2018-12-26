@@ -6,38 +6,40 @@ using System.Threading.Tasks;
 using DocumentDB.AspNet.Identity;
 using Microsoft.AspNet.Identity;
 using Microsoft.Azure.Documents.Client;
-using Oogi.Queries;
+using Oogi2;
 
 namespace Oogi.Identity
 {
-    public class UserStore<T> : IUserLoginStore<T>, IUserClaimStore<T>, IUserRoleStore<T>, IUserPasswordStore<T>, 
-        IUserSecurityStampStore<T>, IUserStore<T>, IUserEmailStore<T>, IUserLockoutStore<T, string>, 
+    public class UserStore<T> : IUserLoginStore<T>, IUserClaimStore<T>, IUserRoleStore<T>, IUserPasswordStore<T>,
+        IUserSecurityStampStore<T>, IUserStore<T>, IUserEmailStore<T>, IUserLockoutStore<T, string>,
         IUserTwoFactorStore<T, string>, IUserPhoneNumberStore<T>, IQueryableUserStore<T, string>
         where T : IdentityUser, new()
     {
-        private bool _disposed;
-        private readonly Connection _connection;
-        private readonly Repository<T> _repo = new Repository<T>();
+        bool _disposed;
+        readonly Connection _connection;
+        readonly Repository<T> _repo;
 
-        public UserStore()
-        {            
-            _connection = new Connection();
+        public UserStore(Connection connection)
+        {
+            _connection = connection;
+            _repo = new Repository<T>(_connection);
         }
 
-        public UserStore(string endpoint, string authorizationKey, string database, string collection)
+        public UserStore(string endpoint, string authorizationKey, string database, string collection, ConnectionPolicy connectionPolicy = null)
         {
-            _connection = new Connection(endpoint, authorizationKey, database, collection);
-        }        
+            _connection = new Connection(endpoint, authorizationKey, database, collection, connectionPolicy);
+            _repo = new Repository<T>(_connection);
+        }
 
         public async Task AddLoginAsync(T user, UserLoginInfo login)
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
-            if (login == null)            
-                throw new ArgumentNullException(nameof(login));            
+            if (login == null)
+                throw new ArgumentNullException(nameof(login));
 
             if (!user.Logins.Any(x => x.LoginProvider == login.LoginProvider && x.ProviderKey == login.ProviderKey))
             {
@@ -51,22 +53,25 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (login == null)            
+            if (login == null)
                 throw new ArgumentNullException(nameof(login));
 
             // TODO: optimize
             var users = await _repo.GetAllAsync();
 
-            return (from user in users from userLogin in user.Logins where userLogin.LoginProvider == login.LoginProvider && 
-                    userLogin?.ProviderKey == userLogin.ProviderKey select user).FirstOrDefault();
+            return (from user in users
+                    from userLogin in user.Logins
+                    where userLogin.LoginProvider == login.LoginProvider &&
+userLogin?.ProviderKey == userLogin.ProviderKey
+                    select user).FirstOrDefault();
         }
 
         public Task<IList<UserLoginInfo>> GetLoginsAsync(T user)
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             return Task.FromResult(user.Logins.ToIList());
         }
@@ -75,11 +80,11 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
-            if (login == null)            
-                throw new ArgumentNullException(nameof(login));            
+            if (login == null)
+                throw new ArgumentNullException(nameof(login));
 
             user.Logins.Remove(u => u.LoginProvider == login.LoginProvider && u.ProviderKey == login.ProviderKey);
 
@@ -90,10 +95,10 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
-            await _repo.CreateAsync(user); 
+            await _repo.CreateAsync(user);
         }
 
         public async Task DeleteAsync(T user)
@@ -109,7 +114,7 @@ namespace Oogi.Identity
 
             if (selectedUser != null)
             {
-                await _repo.DeleteAsync(selectedUser);                
+                await _repo.DeleteAsync(selectedUser);
             }
         }
 
@@ -117,7 +122,7 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (userId == null)            
+            if (userId == null)
                 throw new ArgumentNullException(nameof(userId));
 
             return await _repo.GetFirstOrDefaultAsync(userId);
@@ -127,10 +132,10 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (userName == null)            
-                throw new ArgumentNullException(nameof(userName));            
-            
-            var q = new DynamicQuery<T>
+            if (userName == null)
+                throw new ArgumentNullException(nameof(userName));
+
+            var q = new Oogi2.Queries.DynamicQuery<T>
                 (
                 "select top 1 * from c where c.entity = @entity and c.userName = @userName",
                 new
@@ -147,8 +152,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             if (!user.Claims.Any(x => x.ClaimType == claim.Type && x.ClaimValue == claim.Value))
             {
@@ -166,8 +171,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             IList<Claim> result = user.Claims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToList();
             return Task.FromResult(result);
@@ -177,8 +182,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             user.Claims.RemoveAll(x => x.ClaimType == claim.Type && x.ClaimValue == claim.Value);
             return Task.FromResult(0);
@@ -188,14 +193,14 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
-            if (roleName == null)            
-                throw new ArgumentNullException(nameof(roleName));            
+            if (roleName == null)
+                throw new ArgumentNullException(nameof(roleName));
 
-            if (!user.Roles.Any(x => x.Equals(roleName)))            
-                user.Roles.Add(roleName);            
+            if (!user.Roles.Any(x => x.Equals(roleName)))
+                user.Roles.Add(roleName);
 
             return Task.FromResult(0);
         }
@@ -204,8 +209,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             var result = user.Roles.ToIList();
 
@@ -216,11 +221,11 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
-            if (roleName == null)            
-                throw new ArgumentNullException(nameof(roleName));            
+            if (roleName == null)
+                throw new ArgumentNullException(nameof(roleName));
 
             var isInRole = user.Roles.Any(x => x.Equals(roleName));
 
@@ -231,11 +236,11 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
-            if (roleName == null)            
-                throw new ArgumentNullException(nameof(roleName));            
+            if (roleName == null)
+                throw new ArgumentNullException(nameof(roleName));
 
             user.Roles.Remove(x => x.Equals(roleName));
 
@@ -246,8 +251,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             return Task.FromResult(user.PasswordHash);
         }
@@ -256,8 +261,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             return Task.FromResult(user.PasswordHash != null);
         }
@@ -280,8 +285,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             return Task.FromResult(user.SecurityStamp);
         }
@@ -290,8 +295,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             user.SecurityStamp = stamp;
 
@@ -302,8 +307,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (email == null)            
-                throw new ArgumentNullException(nameof(email));            
+            if (email == null)
+                throw new ArgumentNullException(nameof(email));
 
             var q = new DynamicQuery<T>
                 (
@@ -322,8 +327,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             return Task.FromResult(user.Email);
         }
@@ -332,8 +337,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             return Task.FromResult(user.EmailConfirmed);
         }
@@ -342,11 +347,11 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
-            if (email == null)            
-                throw new ArgumentNullException(nameof(email));            
+            if (email == null)
+                throw new ArgumentNullException(nameof(email));
 
             user.Email = email;
 
@@ -357,8 +362,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             user.EmailConfirmed = confirmed;
 
@@ -369,8 +374,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             return Task.FromResult(user.AccessFailedCount);
         }
@@ -379,8 +384,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             return Task.FromResult(user.LockoutEnabled);
         }
@@ -401,8 +406,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             user.AccessFailedCount++;
 
@@ -413,8 +418,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             user.AccessFailedCount = 0;
 
@@ -425,8 +430,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             user.LockoutEnabled = enabled;
 
@@ -437,8 +442,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             user.LockoutEnd = lockoutEnd;
 
@@ -449,8 +454,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             return Task.FromResult(user.TwoFactorEnabled);
         }
@@ -459,8 +464,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             user.TwoFactorEnabled = enabled;
 
@@ -471,8 +476,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             return Task.FromResult(user.PhoneNumber);
         }
@@ -481,8 +486,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             return Task.FromResult(user.PhoneNumberConfirmed);
         }
@@ -491,11 +496,11 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
-            if (phoneNumber == null)            
-                throw new ArgumentNullException(nameof(phoneNumber));            
+            if (phoneNumber == null)
+                throw new ArgumentNullException(nameof(phoneNumber));
 
             user.PhoneNumber = phoneNumber;
 
@@ -506,8 +511,8 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
-                throw new ArgumentNullException(nameof(user));            
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
 
             user.PhoneNumberConfirmed = confirmed;
 
@@ -531,7 +536,7 @@ namespace Oogi.Identity
         {
             ThrowIfDisposed();
 
-            if (user == null)            
+            if (user == null)
                 throw new ArgumentNullException(nameof(user));
 
             await _repo.ReplaceAsync(user);
@@ -540,7 +545,7 @@ namespace Oogi.Identity
         private string Entity { get; } = new T().Entity;
 
         private Uri DocumentCollectionUri => UriFactory.CreateDocumentCollectionUri(_connection.DatabaseId, _connection.CollectionId);
-       
+
         public IQueryable<T> Users => _connection.Client.CreateDocumentQuery<T>(DocumentCollectionUri);
     }
 }
